@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { db, tasksTable, type NewTask } from "@repo/database";
+import { taskQueue } from "./queue/taskQueue.js";
+import "./workers/taskWorker.js"; // Start the worker
 
 dotenv.config();
 
@@ -54,7 +56,14 @@ app.post("/api/tasks", async (req, res) => {
     
     console.log("✅ Task saved to database:", task);
     
-    // TODO: Add to BullMQ queue for processing
+    // Add to BullMQ queue for processing
+    await taskQueue.add('process-task', {
+      taskId: task.id,
+      url: task.url,
+      question: task.question,
+    });
+    
+    console.log("📤 Task added to queue:", task.id);
     
     res.status(201).json({ 
       ok: true, 
