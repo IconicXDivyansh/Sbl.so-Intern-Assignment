@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import { db, tasksTable } from '@repo/database';
 import { eq } from 'drizzle-orm';
+import { scrapeWebsite } from '../services/scraper.js';
 
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
@@ -27,15 +28,16 @@ async function processTask(job: Job<TaskJobData>) {
       .set({ status: 'processing', updatedAt: new Date() })
       .where(eq(tasksTable.id, taskId));
     
-    // TODO: Add scraping logic here
+    // Scrape the website
     console.log(`📝 Scraping ${url}...`);
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate scraping
+    const scrapedData = await scrapeWebsite(url);
+    console.log(`✅ Scraped ${scrapedData.content.length} characters from ${scrapedData.title}`);
     
     // TODO: Add AI processing logic here
     console.log(`🤖 Processing with AI...`);
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate AI processing
     
-    const mockAnswer = `This is a mock answer for: "${question}". The website ${url} has been analyzed.`;
+    const mockAnswer = `This is a mock answer for: "${question}". The website "${scrapedData.title}" at ${url} has been analyzed. Content preview: ${scrapedData.content.substring(0, 200)}...`;
     
     // Update with results
     await db
@@ -43,7 +45,12 @@ async function processTask(job: Job<TaskJobData>) {
       .set({
         status: 'completed',
         answer: mockAnswer,
-        scrapedContent: 'Mock scraped content',
+        scrapedContent: {
+          title: scrapedData.title,
+          content: scrapedData.content,
+          url: scrapedData.url,
+          timestamp: scrapedData.timestamp.toISOString(),
+        },
         updatedAt: new Date(),
       })
       .where(eq(tasksTable.id, taskId));

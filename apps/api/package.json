@@ -15,7 +15,8 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.4",
     "express": "^4.21.1",
-    "ioredis": "^5.8.2"
+    "ioredis": "^5.8.2",
+    "puppeteer": "^24.27.0"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
