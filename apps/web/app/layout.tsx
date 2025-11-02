@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import localFont from "next/font/local";
 import {
   ClerkProvider,
@@ -8,6 +9,9 @@ import {
   SignedOut,
   UserButton,
 } from '@clerk/nextjs'
+import Providers from '../components/Providers'
+
+// @ts-ignore: allow importing global CSS without type declarations
 import "./globals.css";
 
 const geistSans = localFont({
@@ -18,6 +22,11 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
 });
+
+const googleSansCode = localFont({
+  src: "./fonts/GoogleSansCode-VariableFont_wght.ttf",
+  variable: "--font-google-sans-code",
+})
 
 export const metadata: Metadata = {
   title: "Website Q&A - Ask questions about any website",
@@ -32,43 +41,57 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <div className="flex justify-between items-center">
-                {/* Logo */}
-                <a href="/" className="flex items-center space-x-2">
-                  <div className="bg-gradient-to-r from-violet-600 to-violet-500 rounded-lg p-1.5">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <span className="text-lg font-bold text-white">Web AI Analyzer</span>
-                </a>
-
+        <body className={`${geistSans.variable} ${geistMono.variable} ${googleSansCode.variable} antialiased`}>
+          <header className="w-full bg-black/20 border-b-zinc-800 border-b-2">
+              <nav className="flex max-w-7xl mx-auto items-center justify-between px-6 py-4">
+                <div className="">
+                  <Link href="/" className="flex items-center gap-3">
+                  <svg className="stroke-white  fill-white h-20 w-10" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18px" height="18px" viewBox="0 0 18 18"><path d="M3.025,5.623c.068,.204,.26,.342,.475,.342s.406-.138,.475-.342l.421-1.263,1.263-.421c.204-.068,.342-.259,.342-.474s-.138-.406-.342-.474l-1.263-.421-.421-1.263c-.137-.408-.812-.408-.949,0l-.421,1.263-1.263,.421c-.204,.068-.342,.259-.342,.474s.138,.406,.342,.474l1.263,.421,.421,1.263Z" fill="var(--color-contrast-high)" data-color="color-2"></path><path d="M16.525,8.803l-4.535-1.793-1.793-4.535c-.227-.572-1.168-.572-1.395,0l-1.793,4.535-4.535,1.793c-.286,.113-.475,.39-.475,.697s.188,.584,.475,.697l4.535,1.793,1.793,4.535c.113,.286,.39,.474,.697,.474s.584-.188,.697-.474l1.793-4.535,4.535-1.793c.286-.113,.475-.39,.475-.697s-.188-.584-.475-.697Z" fill="var(--color-contrast-high)"></path></svg>
+                  <h2 className="text-2xl font-bold"><span className="font-semibold text-3xl text-zinc-500">Q</span><span className="font-google">.ai</span></h2>
+                  </Link>
+                </div>  
                 {/* Auth Buttons */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-6">
                   <SignedOut>
                     <SignInButton mode="modal">
-                      <button className="px-5 py-2 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-lg transition-all">
+                      <button className="px-6 py-4 h-12 w-30 flex items-center justify-between rounded-lg text-md font-google text-black  font-bold hover:text-gray-900 bg-neutral-300 hover:bg-zinc-200  transition-colors duration-200">
                         Sign In
                       </button>
                     </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="px-6 py-4 h-12 w-42 text-md flex items-center justify-between font-semibold rounded-lg font-google text-white bg-zinc-700  hover:bg-zinc-700/60 transition-colors shadow-md hover:shadow-lg duration-200">
+                        Get Started
+                      </button>
+                    </SignUpButton>
                   </SignedOut>
                   <SignedIn>
                     <UserButton 
                       appearance={{
                         elements: {
-                          avatarBox: "w-9 h-9"
+                          avatarBox: "w-10 h-10"
                         }
                       }}
                     />
                   </SignedIn>
                 </div>
-              </div>
-            </div>
+              </nav>
           </header>
-          {children}
+          <Providers>
+            {children}
+          </Providers>
+           {/* Footer */}
+      <footer className="border-t border-zinc-800 mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between text-sm text-zinc-500">
+            <p>Demo Purposes Only.</p>
+            <div className="flex gap-6">
+              <Link href="#" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
+              <Link href="#" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
+              <Link href="#" className="hover:text-zinc-300 transition-colors">About Us</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
         </body>
       </html>
     </ClerkProvider>

@@ -1,130 +1,144 @@
 import Link from 'next/link'
+import { SignUpButton } from '@clerk/nextjs'
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <main className="min-h-screen mx-auto bg-linear-to-b from-black via-gray-900 to-black">
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+      <section className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div className="space-y-8">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/50 border border-zinc-700 text-sm text-zinc-300">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            AI-Powered Website Analysis
+          </div>
+
+          {/* Heading */}
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
             Ask Questions About
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <br />
+            <span className="bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
               Any Website
-            </span>
+            </span> 
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Powered by AI, our platform scrapes any website and answers your questions instantly. 
-            No more reading through endless pages.
+
+          {/* Subheading */}
+          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+            Enter a URL and your question. Our AI will scrape, analyze, and give you accurate answers in seconds.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/home">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+
+          {/* CTA Buttons */}
+          <div className="flex items-center justify-center gap-4 pt-4">
+            <SignUpButton mode="modal">
+              <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
                 Get Started Free
               </button>
+            </SignUpButton>
+            <Link href="#features">
+              <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 transition-all">
+                Learn More
+              </button>
             </Link>
-            <button className="bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-lg transition-all shadow-md border border-gray-200">
-              Learn More
-            </button>
           </div>
         </div>
 
-        {/* Feature Cards */}
-        <div className="mt-24 grid md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="bg-blue-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        {/* Hero Image/Demo */}
+        <div className="mt-16 rounded-2xl bg-zinc-900 border border-zinc-800 p-8 shadow-2xl">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-zinc-500">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div className="text-left space-y-3">
+              <div className="bg-zinc-800 rounded-lg p-4">
+                <p className="text-sm text-zinc-400">URL:</p>
+                <p className="text-white font-mono">https://example.com</p>
+              </div>
+              <div className="bg-zinc-800 rounded-lg p-4">
+                <p className="text-sm text-zinc-400">Question:</p>
+                <p className="text-white">What is the main purpose of this website?</p>
+              </div>
+              <div className="bg-linear-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-lg p-4">
+                <p className="text-sm text-blue-400">AI Answer:</p>
+                <p className="text-white">This website is a comprehensive platform for...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            How It Works
+          </h2>
+          <p className="text-xl text-zinc-400">
+            Three simple steps to get answers about any website
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Feature 1 */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 hover:border-zinc-700 transition-all">
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Smart Web Scraping
-            </h3>
-            <p className="text-gray-600">
-              Our AI-powered scraper extracts relevant information from any website, handling dynamic content seamlessly.
+            <h3 className="text-xl font-semibold text-white mb-2">1. Submit URL</h3>
+            <p className="text-zinc-400">
+              Enter any website URL you want to analyze. Our system supports all major websites.
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="bg-purple-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Feature 2 */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 hover:border-zinc-700 transition-all">
+            <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              AI-Powered Answers
-            </h3>
-            <p className="text-gray-600">
-              Get instant, accurate answers to your questions powered by advanced language models like Groq.
+            <h3 className="text-xl font-semibold text-white mb-2">2. Ask Question</h3>
+            <p className="text-zinc-400">
+              Type your question about the website. Be as specific or general as you like.
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="bg-green-100 rounded-full w-14 h-14 flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Feature 3 */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 hover:border-zinc-700 transition-all">
+            <div className="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Lightning Fast
-            </h3>
-            <p className="text-gray-600">
-              Queue-based processing with BullMQ ensures your questions are answered quickly and efficiently.
+            <h3 className="text-xl font-semibold text-white mb-2">3. Get AI Answer</h3>
+            <p className="text-zinc-400">
+              Receive accurate, contextual answers powered by advanced AI analysis in seconds.
             </p>
           </div>
         </div>
+      </section>
 
-        {/* How It Works */}
-        <div className="mt-24">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            How It Works
-          </h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                1
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Submit URL</h4>
-              <p className="text-sm text-gray-600">Paste the website link you want to query</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                2
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Ask Question</h4>
-              <p className="text-sm text-gray-600">Type your question about the content</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                3
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">AI Processing</h4>
-              <p className="text-sm text-gray-600">Our AI scrapes and analyzes the page</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                4
-              </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Get Answer</h4>
-              <p className="text-sm text-gray-600">Receive instant, accurate responses</p>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-center text-white shadow-2xl">
-          <h2 className="text-3xl font-bold mb-4">
+      {/* CTA Section */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Ready to Get Started?
           </h2>
-          <p className="text-xl mb-8 text-blue-100">
-            Sign up now and start asking questions about any website
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are getting instant answers about websites with AI.
           </p>
-          <Link href="/home">
-            <button className="bg-white text-blue-600 hover:bg-gray-100 font-semibold py-4 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-              Start Free Now
+          <SignUpButton mode="modal">
+            <button className="px-8 py-4 text-base font-semibold rounded-lg text-purple-600 bg-white hover:bg-gray-100 transition-all shadow-lg">
+              Start Analyzing Now
             </button>
-          </Link>
+          </SignUpButton>
         </div>
-      </div>
+      </section>
+
+     
     </main>
   );
 } 

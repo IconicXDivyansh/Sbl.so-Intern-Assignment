@@ -1,0 +1,11 @@
+node_modules
+.next
+.turbo
+dist
+build
+*.log
+.env.local
+.env
+.git
+.gitignore
+README.md
