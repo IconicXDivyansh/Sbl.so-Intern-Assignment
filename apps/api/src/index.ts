@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { db, tasksTable, type NewTask } from "@repo/database";
 
 dotenv.config();
 
@@ -28,33 +29,44 @@ app.get("/", (req, res) => {
 });
 
 // Task submission endpoint
-app.post("/api/tasks", (req, res) => {
-  console.log("📥 Received task submission:", req.body);
-  
-  const { url, question } = req.body;
-  
-  if (!url || !question) {
-    return res.status(400).json({ 
-      ok: false, 
-      error: "URL and question are required" 
+app.post("/api/tasks", async (req, res) => {
+  try {
+    console.log("📥 Received task submission:", req.body);
+    
+    const { url, question, userId } = req.body;
+    
+    if (!url || !question) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "URL and question are required" 
+      });
+    }
+    
+    // Save task to database
+    const newTask: NewTask = {
+      userId: userId || 'anonymous',
+      url,
+      question,
+      status: 'pending',
+    };
+    
+    const [task] = await db.insert(tasksTable).values(newTask).returning();
+    
+    console.log("✅ Task saved to database:", task);
+    
+    // TODO: Add to BullMQ queue for processing
+    
+    res.status(201).json({ 
+      ok: true, 
+      data: task 
+    });
+  } catch (error) {
+    console.error("❌ Error creating task:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Failed to create task"
     });
   }
-  
-  // TODO: Add to BullMQ queue, save to database
-  const task = {
-    id: Date.now().toString(),
-    url,
-    question,
-    status: "queued",
-    createdAt: new Date().toISOString(),
-  };
-  
-  console.log("✅ Task created:", task);
-  
-  res.status(201).json({ 
-    ok: true, 
-    data: task 
-  });
 });
 
 app.listen(PORT, () => {
