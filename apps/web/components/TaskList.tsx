@@ -3,8 +3,9 @@ import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
 import { API_ENDPOINTS } from '@/lib/config'
-import TaskCard from './TaskCard'
+import TaskTable from './TaskTable'
 import TaskFilters from './TaskFilters'
+import Pagination from './Pagination'
 import { Loader2, AlertCircle, Inbox, SearchX } from 'lucide-react'
 
 type Task = {
@@ -31,6 +32,8 @@ export default function TaskList() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   
   const fetchTasks = async (): Promise<Task[]> => {
     const token = await getToken()
@@ -88,6 +91,19 @@ export default function TaskList() {
     return filtered
   }, [tasks, searchQuery, statusFilter, sortOrder])
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredTasks.length / itemsPerPage)
+  const paginatedTasks = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return filteredTasks.slice(startIndex, endIndex)
+  }, [filteredTasks, currentPage, itemsPerPage])
+
+  // Reset to page 1 only when search or status filter changes (not sort order)
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, statusFilter])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -139,13 +155,10 @@ export default function TaskList() {
         onSortOrderChange={setSortOrder}
       />
 
-      {/* Task Count */}
-      <div className="mb-4 text-sm text-zinc-500">
-        Showing {filteredTasks.length} of {tasks.length} task{tasks.length !== 1 ? 's' : ''}
-      </div>
-
-      {/* Tasks or Empty State */}
-      {filteredTasks.length === 0 ? (
+      {/* Content Container with minimum height to prevent layout shift */}
+      <div className="min-h-[400px]">
+        {/* Tasks or Empty State */}
+        {filteredTasks.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <SearchX className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
@@ -163,12 +176,21 @@ export default function TaskList() {
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredTasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+        <div className="opacity-100 transition-opacity duration-200">
+          {/* Task Table */}
+          <TaskTable tasks={paginatedTasks} />
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredTasks.length}
+          />
         </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

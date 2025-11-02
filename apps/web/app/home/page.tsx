@@ -19,16 +19,18 @@ export default async function HomePage() {
 
   return (
     <div className='mx-auto max-w-7xl  px-6 py-10'>
+      <div className="py-5">
       <h1 className='text-3xl font-bold'>Welcome, {user?.firstName}!</h1>
       <div className='mt-4 flex gap-6 items-center text-lg'>This is your personalized dashboard.
         <div className='bg-zinc-800 px-4 py-1 rounded-2xl inline'>
        <span className='text-md tracking-wider font-bold shimmer'>Ask away!</span>
        </div>
       </div>
+      </div>
 
 
       {/* Input Form */}
-      <div className='my-20 relative'>
+      <div className='my-24  relative'>
           <div className='absolute right-70 -top-10 -z-10'>
           <FormIcon1 />
           </div>
@@ -38,7 +40,7 @@ export default async function HomePage() {
           </div>
       </div>
       {/* Tasks List */}
-      <div className='my-8'>
+      <div className='mt-15'>
         <h2 className='text-2xl font-bold mb-6'>Your Recent Activity</h2>
         <TaskList />
       </div>

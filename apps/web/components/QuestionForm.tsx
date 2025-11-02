@@ -61,14 +61,14 @@ export default function QuestionForm() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="max-w-xl mx-auto bg-[#131313] drop-shadow-xl drop-shadow-zinc-800 border border-zinc-800 rounded-xl p-6 space-y-4">
+      <form onSubmit={onSubmit} className="max-w-xl mx-auto bg-[#131313] drop-shadow-xl drop-shadow-zinc-900 border hover:drop-shadow-2xl hover:drop-shadow-zinc-800 transition-all duration-200 border-zinc-800 rounded-xl p-6 space-y-4">
       <div>
         <label className="text-sm text-zinc-300">Website URL</label>
-        <input className="w-full mt-2 p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 text-white" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <input className="w-full mt-2 p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-white" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
       </div>
       <div>
         <label className="text-sm text-zinc-300">Question</label>
-        <textarea className="w-full mt-2 p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 text-white" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What is this site about?" />
+        <textarea className="w-full mt-2 p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-white" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What is this site about?" />
       </div>
       <div className="flex items-center justify-between">
         <button  type="submit" className="px-6 py-3 text-lg font-google mx-auto rounded-lg  hover:bg-zinc-800/80 active:scale-95 transition-all duration-200 bg-zinc-800" disabled={mutation.isPending}>

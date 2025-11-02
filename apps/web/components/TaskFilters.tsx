@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Filter, SortDesc, SortAsc } from 'lucide-react'
 
 interface TaskFiltersProps {
@@ -19,6 +19,22 @@ export default function TaskFilters({
   sortOrder,
   onSortOrderChange,
 }: TaskFiltersProps) {
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery)
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearchChange(localSearchQuery)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [localSearchQuery, onSearchChange])
+
+  // Sync with parent when searchQuery changes externally (e.g., clear filters)
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery)
+  }, [searchQuery])
+
   return (
     <div className="bg-[#131313] border border-zinc-800 rounded-xl p-4 mb-6">
       <div className="flex flex-col md:flex-row gap-4">
@@ -28,8 +44,8 @@ export default function TaskFilters({
           <input
             type="text"
             placeholder="Search by URL or question..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            value={localSearchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-700 transition-colors"
           />
         </div>
