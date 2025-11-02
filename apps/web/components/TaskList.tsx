@@ -1,10 +1,11 @@
 "use client"
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
 import { API_ENDPOINTS } from '@/lib/config'
 import TaskCard from './TaskCard'
-import { Loader2, AlertCircle, Inbox } from 'lucide-react'
+import TaskFilters from './TaskFilters'
+import { Loader2, AlertCircle, Inbox, SearchX } from 'lucide-react'
 
 type Task = {
   id: string
@@ -27,6 +28,9 @@ type Task = {
 
 export default function TaskList() {
   const { getToken } = useAuth()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
   
   const fetchTasks = async (): Promise<Task[]> => {
     const token = await getToken()
@@ -51,6 +55,38 @@ export default function TaskList() {
       return hasPendingTasks ? 3000 : false
     },
   })
+
+  // Filter and sort tasks
+  const filteredTasks = useMemo(() => {
+    if (!tasks) return []
+
+    let filtered = [...tasks]
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (task) =>
+          task.url.toLowerCase().includes(query) ||
+          task.question.toLowerCase().includes(query) ||
+          task.answer?.toLowerCase().includes(query)
+      )
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((task) => task.status === statusFilter)
+    }
+
+    // Apply sort order
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB
+    })
+
+    return filtered
+  }, [tasks, searchQuery, statusFilter, sortOrder])
 
   if (isLoading) {
     return (
@@ -92,10 +128,47 @@ export default function TaskList() {
   }
 
   return (
-    <div className="space-y-4">
-      {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
+    <div>
+      {/* Filters */}
+      <TaskFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+      />
+
+      {/* Task Count */}
+      <div className="mb-4 text-sm text-zinc-500">
+        Showing {filteredTasks.length} of {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+      </div>
+
+      {/* Tasks or Empty State */}
+      {filteredTasks.length === 0 ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <SearchX className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+            <p className="text-zinc-400 mb-1">No tasks found</p>
+            <p className="text-sm text-zinc-500">Try adjusting your filters or search query</p>
+            <button
+              onClick={() => {
+                setSearchQuery('')
+                setStatusFilter('all')
+              }}
+              className="mt-4 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm transition-colors"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredTasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
