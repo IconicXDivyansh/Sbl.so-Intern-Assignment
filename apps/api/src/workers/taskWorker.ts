@@ -1,8 +1,13 @@
+import dotenv from 'dotenv';
+// Load environment variables for the worker
+dotenv.config();
+
 import { Worker, Job } from 'bullmq';
 import { Redis } from 'ioredis';
 import { db, tasksTable } from '@repo/database';
 import { eq } from 'drizzle-orm';
 import { scrapeWebsite } from '../services/scraper.js';
+import { generateAnswer } from '../services/ai.js';
 
 const connection = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
@@ -33,23 +38,29 @@ async function processTask(job: Job<TaskJobData>) {
     const scrapedData = await scrapeWebsite(url);
     console.log(`✅ Scraped ${scrapedData.content.length} characters from ${scrapedData.title}`);
     
-    // TODO: Add AI processing logic here
-    console.log(`🤖 Processing with AI...`);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate AI processing
-    
-    const mockAnswer = `This is a mock answer for: "${question}". The website "${scrapedData.title}" at ${url} has been analyzed. Content preview: ${scrapedData.content.substring(0, 200)}...`;
+    // Generate AI answer based on scraped content
+    console.log(`🤖 Generating AI answer...`);
+    const aiResponse = await generateAnswer(
+      question,
+      scrapedData.content,
+      scrapedData.title,
+      scrapedData.url
+    );
+    console.log(`✅ AI answer generated using ${aiResponse.model} (${aiResponse.tokensUsed} tokens)`);
     
     // Update with results
     await db
       .update(tasksTable)
       .set({
         status: 'completed',
-        answer: mockAnswer,
+        answer: aiResponse.answer,
         scrapedContent: {
           title: scrapedData.title,
           content: scrapedData.content,
           url: scrapedData.url,
           timestamp: scrapedData.timestamp.toISOString(),
+          aiModel: aiResponse.model,
+          tokensUsed: aiResponse.tokensUsed,
         },
         updatedAt: new Date(),
       })

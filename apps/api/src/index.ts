@@ -1,11 +1,12 @@
+import dotenv from "dotenv";
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { db, tasksTable, type NewTask } from "@repo/database";
 import { taskQueue } from "./queue/taskQueue.js";
 import "./workers/taskWorker.js"; // Start the worker
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
