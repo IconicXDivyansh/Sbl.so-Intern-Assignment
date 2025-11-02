@@ -53,7 +53,7 @@ Your job is to:
 3. If the content doesn't contain enough information to answer the question, say so clearly
 4. Be concise but informative
 5. Use a friendly, conversational tone
-
+6. Whereever possible, render markdown supported formatting in your answers.
 Website: ${websiteTitle}
 URL: ${websiteUrl}`;
 
@@ -75,7 +75,7 @@ Please provide a clear, accurate answer based on the content above.`;
       ],
       model: 'llama-3.3-70b-versatile', // Fast and capable model
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: 2000,
       top_p: 1,
       stream: false,
     });

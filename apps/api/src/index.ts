@@ -135,6 +135,125 @@ app.post("/api/tasks", requireAuth(), async (req, res) => {
   }
 });
 
+// Delete task endpoint (requires authentication)
+app.delete("/api/tasks/:id", requireAuth(), async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({
+        ok: false,
+        error: "Unauthorized"
+      });
+    }
+    
+    const { id } = req.params;
+    
+    // Verify task belongs to user before deleting
+    const [task] = await db
+      .select()
+      .from(tasksTable)
+      .where(eq(tasksTable.id, id));
+    
+    if (!task) {
+      return res.status(404).json({
+        ok: false,
+        error: "Task not found"
+      });
+    }
+    
+    if (task.userId !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: "Forbidden - Not your task"
+      });
+    }
+    
+    // Delete the task
+    await db.delete(tasksTable).where(eq(tasksTable.id, id));
+    
+    console.log(`🗑️ Deleted task ${id} for user ${userId}`);
+    
+    res.json({
+      ok: true,
+      message: "Task deleted successfully"
+    });
+  } catch (error) {
+    console.error("❌ Error deleting task:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Failed to delete task"
+    });
+  }
+});
+
+// Retry task endpoint (requires authentication)
+app.post("/api/tasks/:id/retry", requireAuth(), async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({
+        ok: false,
+        error: "Unauthorized"
+      });
+    }
+    
+    const { id } = req.params;
+    
+    // Verify task belongs to user
+    const [task] = await db
+      .select()
+      .from(tasksTable)
+      .where(eq(tasksTable.id, id));
+    
+    if (!task) {
+      return res.status(404).json({
+        ok: false,
+        error: "Task not found"
+      });
+    }
+    
+    if (task.userId !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: "Forbidden - Not your task"
+      });
+    }
+    
+    // Reset task status
+    await db
+      .update(tasksTable)
+      .set({ 
+        status: 'pending',
+        error: null,
+        answer: null,
+        updatedAt: new Date()
+      })
+      .where(eq(tasksTable.id, id));
+    
+    // Re-add to queue
+    await taskQueue.add('process-task', {
+      taskId: task.id,
+      url: task.url,
+      question: task.question,
+    });
+    
+    console.log(`🔄 Retrying task ${id} for user ${userId}`);
+    
+    res.json({
+      ok: true,
+      message: "Task queued for retry"
+    });
+  } catch (error) {
+    console.error("❌ Error retrying task:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Failed to retry task"
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 API server running on http://localhost:${PORT}`);
 });

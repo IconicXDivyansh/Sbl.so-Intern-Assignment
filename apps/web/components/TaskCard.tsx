@@ -1,6 +1,10 @@
 "use client"
-import React from 'react'
-import { Clock, CheckCircle2, XCircle, Loader2, ExternalLink } from 'lucide-react'
+import React, { useState } from 'react'
+import { Clock, CheckCircle2, XCircle, Loader2, ExternalLink, Copy, Trash2, RefreshCw, Check } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@clerk/nextjs'
+import ReactMarkdown from 'react-markdown'
+import { API_ENDPOINTS } from '@/lib/config'
 
 type Task = {
   id: string
@@ -25,7 +29,59 @@ interface TaskCardProps {
   task: Task
 }
 
+async function deleteTask(taskId: string, token: string) {
+  const res = await fetch(`${API_ENDPOINTS.tasks}/${taskId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Failed to delete task')
+  return res.json()
+}
+
+async function retryTask(taskId: string, token: string) {
+  const res = await fetch(`${API_ENDPOINTS.tasks}/${taskId}/retry`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Failed to retry task')
+  return res.json()
+}
+
 export default function TaskCard({ task }: TaskCardProps) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+  const [copied, setCopied] = useState(false)
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken()
+      if (!token) throw new Error('No auth token')
+      return deleteTask(task.id, token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    }
+  })
+
+  const retryMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken()
+      if (!token) throw new Error('No auth token')
+      return retryTask(task.id, token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    }
+  })
+
+  const handleCopy = async () => {
+    if (task.answer) {
+      await navigator.clipboard.writeText(task.answer)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
   const statusConfig = {
     pending: {
       icon: Clock,
@@ -92,12 +148,33 @@ export default function TaskCard({ task }: TaskCardProps) {
       {/* Answer or Error */}
       {task.status === 'completed' && task.answer && (
         <>
-          <div className="mt-4 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
-            <h3 className="text-sm text-zinc-400 mb-2 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              Answer:
-            </h3>
-            <p className="text-zinc-200 whitespace-pre-wrap leading-relaxed">{task.answer}</p>
+          <div className="mt-4 p-4 bg-zinc-900/50 rounded-lg border border-zinc-800 relative">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm text-zinc-400 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                Answer:
+              </h3>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+                title="Copy answer"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3 h-3 text-green-500" />
+                    <span className="text-green-500">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="text-zinc-200 leading-relaxed prose prose-invert prose-sm max-w-none">
+              <ReactMarkdown>{task.answer}</ReactMarkdown>
+            </div>
           </div>
           
           {/* Metadata */}
@@ -154,9 +231,31 @@ export default function TaskCard({ task }: TaskCardProps) {
         </div>
       )}
 
-      {/* Timestamp */}
-      <div className="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500">
-        Created {new Date(task.createdAt).toLocaleString()}
+      {/* Timestamp and Actions */}
+      <div className="mt-4 pt-4 border-t border-zinc-800 flex items-center justify-between">
+        <span className="text-xs text-zinc-500">
+          Created {new Date(task.createdAt).toLocaleString()}
+        </span>
+        <div className="flex items-center gap-2">
+          {task.status === 'failed' && (
+            <button
+              onClick={() => retryMutation.mutate()}
+              disabled={retryMutation.isPending}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${retryMutation.isPending ? 'animate-spin' : ''}`} />
+              {retryMutation.isPending ? 'Retrying...' : 'Retry'}
+            </button>
+          )}
+          <button
+            onClick={() => deleteMutation.mutate()}
+            disabled={deleteMutation.isPending}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded transition-colors disabled:opacity-50"
+          >
+            <Trash2 className="w-3 h-3" />
+            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
       </div>
     </div>
   )
