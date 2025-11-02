@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import QuestionForm from '../../components/QuestionForm'
+import TaskList from '../../components/TaskList'
 import { FormIcon1 } from '../../components/Icons/FormIcon1'
 import { FormIcon2 } from '../../components/Icons/FormIcon2'
 import { Globe } from '../../components/Icons/Globe'
@@ -37,11 +38,9 @@ export default async function HomePage() {
           </div>
       </div>
       {/* Tasks List */}
-
-      {/* Empty State */}
       <div className='my-8'>
-        <h2 className='text-2xl font-bold'>Your Recent Activity</h2>
-        <p className='mt-2 text-zinc-400'>You haven't asked any questions yet. Start by submitting a URL and your question!</p>
+        <h2 className='text-2xl font-bold mb-6'>Your Recent Activity</h2>
+        <TaskList />
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import { db, tasksTable, type NewTask } from "@repo/database";
+import { desc } from "drizzle-orm";
 import { taskQueue } from "./queue/taskQueue.js";
 import "./workers/taskWorker.js"; // Start the worker
 
@@ -29,6 +30,30 @@ app.get("/", (req, res) => {
     message: "Website Q&A API Server",
     version: "1.0.0"
   });
+});
+
+// Get all tasks endpoint
+app.get("/api/tasks", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    
+    // For now, return all tasks (you can filter by userId later)
+    const tasks = await db
+      .select()
+      .from(tasksTable)
+      .orderBy(desc(tasksTable.createdAt));
+    
+    res.json({ 
+      ok: true, 
+      data: tasks 
+    });
+  } catch (error) {
+    console.error("❌ Error fetching tasks:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Failed to fetch tasks"
+    });
+  }
 });
 
 // Task submission endpoint
