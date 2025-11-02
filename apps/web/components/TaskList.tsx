@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@clerk/nextjs'
 import { API_ENDPOINTS } from '@/lib/config'
 import TaskCard from './TaskCard'
 import { Loader2, AlertCircle, Inbox } from 'lucide-react'
@@ -24,14 +25,21 @@ type Task = {
   updatedAt: string
 }
 
-async function fetchTasks(): Promise<Task[]> {
-  const res = await fetch(API_ENDPOINTS.tasks)
-  if (!res.ok) throw new Error('Failed to fetch tasks')
-  const data = await res.json()
-  return data.data || []
-}
-
 export default function TaskList() {
+  const { getToken } = useAuth()
+  
+  const fetchTasks = async (): Promise<Task[]> => {
+    const token = await getToken()
+    const res = await fetch(API_ENDPOINTS.tasks, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+    if (!res.ok) throw new Error('Failed to fetch tasks')
+    const data = await res.json()
+    return data.data || []
+  }
+  
   const { data: tasks, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['tasks'],
     queryFn: fetchTasks,

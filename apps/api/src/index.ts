@@ -2,10 +2,11 @@ import dotenv from "dotenv";
 // Load environment variables FIRST before any other imports
 dotenv.config();
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 import { db, tasksTable, type NewTask } from "@repo/database";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { taskQueue } from "./queue/taskQueue.js";
 import "./workers/taskWorker.js"; // Start the worker
 
@@ -15,12 +16,23 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ 
     status: "ok", 
     timestamp: new Date().toISOString() 
+  });
+});
+
+// Debug endpoint to check user ID
+app.get("/debug/user", clerkMiddleware, async (req: express.Request, res: express.Response) => {
+  const { userId } = getAuth(req);
+  res.json({ 
+    userId,
+    hasAuth: !!userId,
+    authHeader: req.headers.authorization ? 'present' : 'missing'
   });
 });
 
@@ -32,16 +44,26 @@ app.get("/", (req, res) => {
   });
 });
 
-// Get all tasks endpoint
-app.get("/api/tasks", async (req, res) => {
+// Get all tasks endpoint (requires authentication)
+app.get("/api/tasks", requireAuth(), async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId } = getAuth(req);
     
-    // For now, return all tasks (you can filter by userId later)
+    if (!userId) {
+      return res.status(401).json({
+        ok: false,
+        error: "Unauthorized - No user ID"
+      });
+    }
+    
+    // Filter tasks by authenticated user
     const tasks = await db
       .select()
       .from(tasksTable)
+      .where(eq(tasksTable.userId, userId))
       .orderBy(desc(tasksTable.createdAt));
+    
+    console.log(`📋 Fetched ${tasks.length} tasks for user: ${userId}`);
     
     res.json({ 
       ok: true, 
@@ -56,12 +78,21 @@ app.get("/api/tasks", async (req, res) => {
   }
 });
 
-// Task submission endpoint
-app.post("/api/tasks", async (req, res) => {
+// Task submission endpoint (requires authentication)
+app.post("/api/tasks", requireAuth(), async (req, res) => {
   try {
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({
+        ok: false,
+        error: "Unauthorized - No user ID"
+      });
+    }
+    
     console.log("📥 Received task submission:", req.body);
     
-    const { url, question, userId } = req.body;
+    const { url, question } = req.body;
     
     if (!url || !question) {
       return res.status(400).json({ 
@@ -70,9 +101,9 @@ app.post("/api/tasks", async (req, res) => {
       });
     }
     
-    // Save task to database
+    // Save task to database with authenticated userId
     const newTask: NewTask = {
-      userId: userId || 'anonymous',
+      userId,
       url,
       question,
       status: 'pending',

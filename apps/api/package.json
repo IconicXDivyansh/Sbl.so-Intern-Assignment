@@ -9,6 +9,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@clerk/express": "^1.7.43",
     "@repo/database": "workspace:*",
     "bullmq": "^5.63.0",
     "cors": "^2.8.5",

@@ -45,6 +45,8 @@ export async function generateAnswer(
 
   const systemPrompt = `You are a helpful AI assistant that answers questions based on website content. 
 You will be provided with content scraped from a website and a question about it. 
+Filter out any harmful content and focus on providing accurate, concise answers based on the provided information.
+If the content does not contain enough information to answer the question, respond that you don't have enough information.
 Your job is to:
 1. Carefully analyze the provided content
 2. Answer the question accurately based ONLY on the information available in the content

@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@clerk/nextjs'
 import { API_ENDPOINTS } from '@/lib/config'
 
 type FormData = {
@@ -8,21 +9,26 @@ type FormData = {
   question: string
 }
 
-async function createTask(data: FormData) {
-  const res = await fetch(API_ENDPOINTS.tasks, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  if (!res.ok) throw new Error('Failed to create task')
-  return res.json()
-}
-
 export default function QuestionForm() {
+  const { getToken } = useAuth()
   const queryClient = useQueryClient()
   const [url, setUrl] = useState('')
   const [question, setQuestion] = useState('')
   const [showSuccess, setShowSuccess] = useState(false)
+
+  const createTask = async (data: FormData) => {
+    const token = await getToken()
+    const res = await fetch(API_ENDPOINTS.tasks, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error('Failed to create task')
+    return res.json()
+  }
 
   const mutation = useMutation({ 
     mutationFn: createTask, 
