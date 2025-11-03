@@ -9,11 +9,17 @@ import { eq } from 'drizzle-orm';
 import { scrapeWebsite } from '../services/scraper.js';
 import { generateAnswer } from '../services/ai.js';
 
-const connection = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null,
-});
+// Support both REDIS_URL (production) and REDIS_HOST/PORT (local development)
+const connection = process.env.REDIS_URL
+  ? new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: null,
+      tls: process.env.REDIS_URL.startsWith('rediss://') ? {} : undefined,
+    })
+  : new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      maxRetriesPerRequest: null,
+    });
 
 interface TaskJobData {
   taskId: string;
