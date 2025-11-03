@@ -11,4 +11,4 @@ const pool = new Pool({
 const db = drizzle(pool);
 
 export { db };
-export * from './schema';
+export * from './schema.js';
