@@ -4,8 +4,6 @@ import QuestionForm from '../../components/QuestionForm'
 import TaskList from '../../components/TaskList'
 import { FormIcon1 } from '../../components/Icons/FormIcon1'
 import { FormIcon2 } from '../../components/Icons/FormIcon2'
-import { Globe } from '../../components/Icons/Globe'
-import { Dots } from '../../components/Icons/Dots'
 
 export default async function HomePage() {
   const { userId } = await auth()
