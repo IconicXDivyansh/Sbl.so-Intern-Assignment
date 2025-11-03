@@ -20,8 +20,10 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 
 // Security: CORS - Only allow requests from your frontend
+// Remove trailing slash from FRONTEND_URL to avoid CORS mismatch
+const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: frontendUrl,
   credentials: true,
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
