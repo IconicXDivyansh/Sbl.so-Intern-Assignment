@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { SignUpButton } from '@clerk/nextjs'
+import { SignUpButton, SignedIn, SignedOut } from '@clerk/nextjs'
 
 export default function LandingPage() {
   return (
@@ -29,11 +29,20 @@ export default function LandingPage() {
 
           {/* CTA Buttons */}
           <div className="flex items-center justify-center gap-4 pt-4">
-            <SignUpButton mode="modal">
-              <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
-                Get Started Free
-              </button>
-            </SignUpButton>
+            <SignedIn>
+              <Link href="/home">
+                <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+                  Go to Dashboard
+                </button>
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl">
+                  Get Started Free
+                </button>
+              </SignUpButton>
+            </SignedOut>
             <Link href="#features">
               <button className="px-8 py-4 text-base font-semibold rounded-lg text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 transition-all">
                 Learn More
@@ -123,18 +132,27 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center">
+        <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Ready to Get Started?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of users who are getting instant answers about websites with AI.
           </p>
-          <SignUpButton mode="modal">
-            <button className="px-8 py-4 text-base font-semibold rounded-lg text-purple-600 bg-white hover:bg-gray-100 transition-all shadow-lg">
-              Start Analyzing Now
-            </button>
-          </SignUpButton>
+          <SignedIn>
+            <Link href="/home">
+              <button className="px-8 py-4 text-base font-semibold rounded-lg text-purple-600 bg-white hover:bg-gray-100 transition-all shadow-lg">
+                Go to Dashboard
+              </button>
+            </Link>
+          </SignedIn>
+          <SignedOut>
+            <SignUpButton mode="modal">
+              <button className="px-8 py-4 text-base font-semibold rounded-lg text-purple-600 bg-white hover:bg-gray-100 transition-all shadow-lg">
+                Start Analyzing Now
+              </button>
+            </SignUpButton>
+          </SignedOut>
         </div>
       </section>
 
