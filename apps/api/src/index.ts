@@ -213,6 +213,13 @@ app.post("/api/tasks", requireAuth(), taskCreationLimiter, async (req, res) => {
     
     const [task] = await db.insert(tasksTable).values(newTask).returning();
     
+    if (!task) {
+      return res.status(500).json({
+        ok: false,
+        error: "Failed to create task"
+      });
+    }
+    
     console.log("✅ Task saved to database:", task);
     
     // Add to BullMQ queue for processing
@@ -255,6 +262,13 @@ app.delete("/api/tasks/:id", requireAuth(), async (req, res) => {
     }
     
     const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        ok: false,
+        error: "Task ID is required"
+      });
+    }
     
     // Verify task belongs to user before deleting
     const [task] = await db
@@ -311,6 +325,13 @@ app.post("/api/tasks/:id/retry", requireAuth(), async (req, res) => {
     }
     
     const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        ok: false,
+        error: "Task ID is required"
+      });
+    }
     
     // Verify task belongs to user
     const [task] = await db
