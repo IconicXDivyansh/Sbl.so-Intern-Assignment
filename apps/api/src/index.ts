@@ -16,6 +16,9 @@ import validator from "validator";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust Railway's reverse proxy (for X-Forwarded-For header in rate limiting)
+app.set('trust proxy', 1);
+
 // Security: Helmet adds various HTTP headers for security
 app.use(helmet());
 
