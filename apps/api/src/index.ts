@@ -8,7 +8,17 @@ import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 import { db, tasksTable, type NewTask } from "@repo/database";
 import { desc, eq } from "drizzle-orm";
 import { taskQueue } from "./queue/taskQueue.js";
-import "./workers/taskWorker.js"; // Start the worker
+
+// Start the worker unless explicitly disabled via environment variable.
+// This is useful in production when the Redis provider is rate-limited and
+// you want to temporarily stop worker activity without removing code.
+if (process.env.DISABLE_WORKER !== 'true') {
+  import("./workers/taskWorker.js")
+    .then(() => console.log('👷 Task worker loaded'))
+    .catch((err) => console.error('❌ Failed to start worker:', err));
+} else {
+  console.log('⏸️ Task worker disabled via DISABLE_WORKER=true');
+}
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import validator from "validator";
@@ -227,19 +237,39 @@ app.post("/api/tasks", requireAuth(), taskCreationLimiter, async (req, res) => {
     
     console.log("✅ Task saved to database:", task);
     
-    // Add to BullMQ queue for processing
-    await taskQueue.add('process-task', {
-      taskId: task.id,
-      url: task.url,
-      question: task.question,
-    });
-    
-    console.log("📤 Task added to queue:", task.id);
-    
-    res.status(201).json({ 
-      ok: true, 
-      data: task 
-    });
+    // Try to add to BullMQ queue for processing. If Redis/Upstash quota is exceeded
+    // we catch the error and return success because the task is already persisted
+    // in the DB. This prevents the frontend from receiving a 500 while the
+    // queue provider is temporarily unavailable.
+    try {
+      await taskQueue.add('process-task', {
+        taskId: task.id,
+        url: task.url,
+        question: task.question,
+      });
+
+      console.log("📤 Task added to queue:", task.id);
+
+      res.status(201).json({ 
+        ok: true, 
+        data: task 
+      });
+    } catch (err) {
+      // Log the error (worker logs will show the full Upstash quota messages).
+      console.error('⚠️ Failed to enqueue task (queue error):', err instanceof Error ? err.message : err);
+
+      // Keep the task in the DB with its current 'pending' status. Return 201
+      // so the user sees the task saved. Include a lightweight warning in
+      // development to aid debugging.
+      const isDevelopment = process.env.NODE_ENV !== 'production';
+
+      res.status(201).json({
+        ok: true,
+        data: task,
+        warning: 'Task saved but not enqueued. The queue provider may be rate-limited or unavailable. It will be retried when the queue is available.',
+        ...(isDevelopment && { details: err instanceof Error ? err.message : String(err) })
+      });
+    }
   } catch (error) {
     console.error("❌ Error creating task:", error);
     
@@ -369,19 +399,31 @@ app.post("/api/tasks/:id/retry", requireAuth(), async (req, res) => {
       })
       .where(eq(tasksTable.id, id));
     
-    // Re-add to queue
-    await taskQueue.add('process-task', {
-      taskId: task.id,
-      url: task.url,
-      question: task.question,
-    });
-    
-    console.log(`🔄 Retrying task ${id} for user ${userId}`);
-    
-    res.json({
-      ok: true,
-      message: "Task queued for retry"
-    });
+    // Re-add to queue (safe: if the queue is unavailable, keep task pending)
+    try {
+      await taskQueue.add('process-task', {
+        taskId: task.id,
+        url: task.url,
+        question: task.question,
+      });
+
+      console.log(`🔄 Retrying task ${id} for user ${userId}`);
+
+      res.json({
+        ok: true,
+        message: "Task queued for retry"
+      });
+    } catch (err) {
+      console.error('⚠️ Failed to enqueue retry (queue error):', err instanceof Error ? err.message : err);
+
+      const isDevelopment = process.env.NODE_ENV !== 'production';
+
+      res.json({
+        ok: true,
+        message: 'Task marked pending for retry but queue is currently unavailable. It will be retried when the queue is available.',
+        ...(isDevelopment && { details: err instanceof Error ? err.message : String(err) })
+      });
+    }
   } catch (error) {
     console.error("❌ Error retrying task:", error);
     
