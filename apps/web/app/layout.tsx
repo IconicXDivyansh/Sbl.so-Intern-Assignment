@@ -42,7 +42,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} ${googleSansCode.variable} antialiased`}>
-          <header className="w-full bg-black/20 border-b-zinc-800 border-b-2">
+          <header className="w-full bg-blue-100 dark:bg-neutral-900 border-b-zinc-800 border-b-2">
               <nav className="flex max-w-7xl mx-auto items-center justify-between px-6 py-1">
                 <div className="">
                   <Link href="/" className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export default function RootLayout({
                 <div className="flex items-center gap-6">
                   <SignedOut>
                     <SignInButton mode="modal">
-                      <button className="px-6 py-4 h-12 w-30 flex items-center justify-between rounded-lg text-md font-google text-black  font-bold hover:text-gray-900 bg-neutral-300 hover:bg-zinc-200  transition-colors duration-200">
+                      <button className="px-6 py-4 h-12 w-30 flex items-center justify-between rounded-lg text-md font-google text-black  font-bold dark:hover:text-gray-900 bg-neutral-300 hover:bg-neutral-400 hover:scale-90 transition-transform duration-100 dark:bg-neutral-300 dark:hover:bg-zinc-200  transition-colors duration-200">
                         Sign In
                       </button>
                     </SignInButton>
@@ -83,12 +83,7 @@ export default function RootLayout({
       <footer className="border-t border-zinc-800 mt-20">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between text-sm text-zinc-500">
-            <p>Demo Purposes Only.</p>
-            <div className="flex gap-6">
-              <Link href="#" className="hover:text-zinc-300 transition-colors">Terms of Service</Link>
-              <Link href="#" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
-              <Link href="#" className="hover:text-zinc-300 transition-colors">About Us</Link>
-            </div>
+            <p>Demo Purposes Only. Please, Don't raise PRs</p>
           </div>
         </div>
       </footer>

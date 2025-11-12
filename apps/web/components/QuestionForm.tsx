@@ -93,16 +93,16 @@ export default function QuestionForm() {
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="max-w-xl mx-auto bg-[#131313] drop-shadow-xl drop-shadow-zinc-900 border hover:drop-shadow-2xl hover:drop-shadow-zinc-800 transition-all duration-200 border-zinc-800 rounded-xl p-6 space-y-4">
+      <form onSubmit={onSubmit} className="max-w-xl mx-auto backdrop-blur-xl dark:backdrop-blur-none dark:bg-[#131313] dark:drop-shadow-xl dark:drop-shadow-zinc-900 border dark:hover:drop-shadow-2xl hover:drop-shadow-zinc-800 transition-all duration-200 border-zinc-800 rounded-xl p-6 space-y-4">
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm text-zinc-300">Website URL</label>
+          <label className="text-sm text-zinc-500 dark:text-zinc-300">Website URL</label>
           <span className={`text-xs ${url.length > 200 ? 'text-red-400' : 'text-zinc-500'}`}>
             {url.length}/200
           </span>
         </div>
         <input 
-          className="w-full p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-white" 
+          className="w-full p-3 rounded-lg backdrop-blur-2xl dark:bg-zinc-900/50 border dark:border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-zinc-600 placeholder:text-neutral-400 dark:text-white" 
           value={url} 
           onChange={(e) => setUrl(e.target.value)} 
           placeholder="https://example.com"
@@ -112,13 +112,13 @@ export default function QuestionForm() {
       </div>
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm text-zinc-300">Question</label>
+          <label className="text-sm text-zinc-500 dark:text-zinc-300">Question</label>
           <span className={`text-xs ${question.length > 1000 ? 'text-red-400' : 'text-zinc-500'}`}>
             {question.length}/1000
           </span>
         </div>
         <textarea 
-          className="w-full p-3 rounded-lg bg-zinc-900/50 border border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-white min-h-[100px]" 
+          className="w-full p-3 rounded-lg backdrop-blur-2xl dark:bg-zinc-900/50 border dark:border-zinc-700 outline-none focus:ring-2 focus:ring-zinc-400/90 text-zinc-600  placeholder:text-neutral-400 dark:text-white min-h-[100px]" 
           value={question} 
           onChange={(e) => setQuestion(e.target.value)} 
           placeholder="What is this site about?"
@@ -126,7 +126,7 @@ export default function QuestionForm() {
         />
       </div>
       <div className="flex items-center justify-between">
-        <button  type="submit" className="px-6 py-3 text-lg font-google mx-auto rounded-lg  hover:bg-zinc-800/80 active:scale-95 transition-all duration-200 bg-zinc-800" disabled={mutation.isPending}>
+        <button  type="submit" className="px-6 py-3 text-lg font-google mx-auto rounded-lg  hover:bg-zinc-800/80 active:scale-95 transition-all duration-200 text-white bg-zinc-500 dark:bg-zinc-800" disabled={mutation.isPending}>
           {mutation.isPending ? 'Submitting...' : 'Submit'}
         </button  >
         {mutation.isError && <p className="text-sm text-red-400">Error: {(mutation.error as Error).message}</p>}
